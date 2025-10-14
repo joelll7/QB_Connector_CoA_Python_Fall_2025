@@ -2,3 +2,5 @@ __pycache__/
 **/__pycache__/
 dist/
 build/
+.~lock.company_data.xlsx#
+poetry.lock
