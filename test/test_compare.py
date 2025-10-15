@@ -12,7 +12,7 @@ def test_compare_account_types():
     qb_terms = [
         PaymentTerm(account_type="EXPENSE", name="Expenses", source="quickbooks"),
         PaymentTerm(account_type="INCOME", names="Income", source="quickbooks"),
-        PaymentTerm(account_type="LIABILITY", name="Liability", source="quickbooks)
+        PaymentTerm(account_type="LIABILITY", name="Liability", source="quickbooks")
     ]
     
     result = compare_account_types(excel_terms, qb_terms)
