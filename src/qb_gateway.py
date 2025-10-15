@@ -11,7 +11,7 @@ try:
 except ImportError:  # pragma: no cover
     win32com = None  # type: ignore
 
-from .models import PaymentTerm
+from .models import Account
 
 
 APP_NAME = "Quickbooks Connector" # do not chanege this
@@ -60,20 +60,20 @@ def _parse_response(raw_xml: str) -> ET.Element:
     return root
 
 
-def fetch_payment_terms(company_file: str | None = None) -> List[PaymentTerm]:
-    """Return payment terms currently stored in QuickBooks."""
+def fetch_chart_of_accounts(company_file: str | None = None) -> List[Account]:
+    """Return accounts in Chart of Accounts currently stored in QuickBooks."""
 
     qbxml = (
         '<?xml version="1.0"?>\n'
         '<?qbxml version="16.0"?>\n'
         "<QBXML>\n"
         '  <QBXMLMsgsRq onError="stopOnError">\n'
-        "    <StandardTermsQueryRq/>\n"
+        "    <AccountQueryRq/>\n"
         "  </QBXMLMsgsRq>\n"
         "</QBXML>"
     )
     root = _send_qbxml(qbxml)
-    terms: List[PaymentTerm] = []
+    terms: List[Account] = []
     for term_ret in root.findall(".//StandardTermsRet"):
         record_id = term_ret.findtext("StdDiscountDays")
         name = (term_ret.findtext("Name") or "").strip()
