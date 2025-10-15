@@ -74,27 +74,29 @@ def fetch_chart_of_accounts(company_file: str | None = None) -> List[Account]:
     )
     root = _send_qbxml(qbxml)
     terms: List[Account] = []
-    for term_ret in root.findall(".//StandardTermsRet"):
-        record_id = term_ret.findtext("StdDiscountDays")
-        name = (term_ret.findtext("Name") or "").strip()
+    for account_ret in root.findall(".//AccountRet"):
+        id = account_ret.findtext("Desc").strip()
+        name = (account_ret.findtext("Name") or "").strip()
+        acc_number = (account_ret.findtext("AccountNumber") or "").strip()
+        acc_type = (account_ret.findtext("AccountType") or "").strip()
 
-        if not record_id:
+        if not id:
             continue
         try:
-            record_id = str(int(record_id))
+            id = str(int(id))
         except ValueError:
-            record_id = record_id.strip()
-        if not record_id:
+            id = id.strip()
+        if not id:
             continue
 
-        terms.append(PaymentTerm(record_id=record_id, name=name, source="quickbooks"))
+        terms.append(Account(id=id, name=name, acc_number=acc_number, acc_type=acc_type, source="quickbooks"))
 
     return terms
 
 
-def add_payment_terms_batch(
-    company_file: str | None, terms: List[PaymentTerm]
-) -> List[PaymentTerm]:
+def add_accounts_batch(
+    company_file: str | None, terms: List[Account]
+) -> List[Account]:
     """Create multiple payment terms in QuickBooks in a single batch request."""
 
     if not terms:
@@ -104,20 +106,21 @@ def add_payment_terms_batch(
     requests = []
     for term in terms:
         try:
-            days_value = int(term.record_id)
+            desc_value = int(term.id)
         except ValueError as exc:
             raise ValueError(
-                f"record_id must be numeric for QuickBooks payment terms: {term.record_id}"
+                f"id must be numeric for QuickBooks account terms: {term.id}"
             ) from exc
 
         requests.append(
-            f"    <StandardTermsAddRq>\n"
-            f"      <StandardTermsAdd>\n"
+            f"    <AccountAddRq>\n"
+            f"      <AccountAdd>\n"
             f"        <Name>{_escape_xml(term.name)}</Name>\n"
-            f"        <StdDiscountDays>{days_value}</StdDiscountDays>\n"
-            f"        <DiscountPct>0</DiscountPct>\n"
-            f"      </StandardTermsAdd>\n"
-            f"    </StandardTermsAddRq>"
+            f"        <AccountType>{_escape_xml(term.acc_type)}</AccountType>\n" #UNSURE ABOUT THIS
+            f"        <AccountNumber>{_escape_xml(term.acc_number)}</AccountNumber>\n"
+            f"        <Desc>{desc_value}</Desc>\n"
+            f"      </AccountAdd>\n"
+            f"    </AccountAddRq>"
         )
 
     qbxml = (
@@ -137,31 +140,33 @@ def add_payment_terms_batch(
         return []
 
     # Parse all responses
-    added_terms: List[PaymentTerm] = []
-    for term_ret in root.findall(".//StandardTermsRet"):
-        record_id = term_ret.findtext("StdDiscountDays")
-        if not record_id:
+    added_accounts: List[Account] = []
+    for account_ret in root.findall(".//AccountRet"):
+        id = account_ret.findtext("Desc").strip()
+        if not id:
             continue
         try:
-            record_id = str(int(record_id))
+            id = str(int(id))
         except ValueError:
-            record_id = record_id.strip()
-        name = (term_ret.findtext("Name") or "").strip()
-        added_terms.append(
-            PaymentTerm(record_id=record_id, name=name, source="quickbooks")
+            id = id.strip()
+        name = (account_ret.findtext("Name") or "").strip()
+        acc_number = (account_ret.findtext("AccountNumber") or "").strip()
+        acc_type = (account_ret.findtext("AccountType") or "").strip()
+        added_accounts.append(
+            Account(id=id, name=name, acc_number=acc_number, acc_type=acc_type, source="quickbooks")
         )
 
-    return added_terms
+    return added_accounts
 
 
-def add_payment_term(company_file: str | None, term: PaymentTerm) -> PaymentTerm:
-    """Create a payment term in QuickBooks and return the stored record."""
+def add_account(company_file: str | None, term: Account) -> Account:
+    """Create an account in QuickBooks and return the stored record."""
 
     try:
-        days_value = int(term.record_id)
+        desc_value = int(term.id)
     except ValueError as exc:
         raise ValueError(
-            "record_id must be numeric for QuickBooks payment terms"
+            "id must be numeric for QuickBooks account"
         ) from exc
 
     qbxml = (
@@ -169,13 +174,14 @@ def add_payment_term(company_file: str | None, term: PaymentTerm) -> PaymentTerm
         '<?qbxml version="13.0"?>\n'
         "<QBXML>\n"
         '  <QBXMLMsgsRq onError="stopOnError">\n'
-        "    <StandardTermsAddRq>\n"
-        "      <StandardTermsAdd>\n"
+        "    <AccountAddRq>\n"
+        "      <AccountAdd>\n"
         f"        <Name>{_escape_xml(term.name)}</Name>\n"
-        f"        <StdDiscountDays>{days_value}</StdDiscountDays>\n"
-        "        <DiscountPct>0</DiscountPct>\n"
-        "      </StandardTermsAdd>\n"
-        "    </StandardTermsAddRq>\n"
+        f"        <AccountType>{_escape_xml(term.acc_type)}</AccountType>\n" #UNSURE ABOUT THIS
+        f"        <AccountNumber>{_escape_xml(term.acc_number)}</AccountNumber>\n"
+        f"        <Desc>{desc_value}</Desc>\n"
+        "      </AccountAdd>\n"
+        "    </AccountAddRq>\n"
         "  </QBXMLMsgsRq>\n"
         "</QBXML>"
     )
@@ -186,25 +192,27 @@ def add_payment_term(company_file: str | None, term: PaymentTerm) -> PaymentTerm
         # Check if error is "name already in use" (error code 3100)
         if "already in use" in str(exc):
             # Return the term as-is since it already exists
-            return PaymentTerm(
-                record_id=term.record_id, name=term.name, source="quickbooks"
+            return Account(
+                id=term.id, name=term.name, acc_type=term.acc_type, acc_number=term.acc_number, source="quickbooks"
             )
         raise
 
-    term_ret = root.find(".//StandardTermsRet")
-    if term_ret is None:
-        return PaymentTerm(
-            record_id=term.record_id, name=term.name, source="quickbooks"
+    account_ret = root.find(".//AccountRet")
+    if account_ret is None:
+        return Account(
+            record_id=term.id, name=term.name, acc_type=term.acc_type, acc_number=term.acc_number, source="quickbooks"
         )
 
-    record_id = term_ret.findtext("StdDiscountDays") or term.record_id
+    id = account_ret.findtext("Desc") or term.id
     try:
-        record_id = str(int(record_id))
+        record_id = str(int(id))
     except ValueError:
-        record_id = record_id.strip()
-    name = (term_ret.findtext("Name") or term.name).strip()
+        id = id.strip()
+    name = (account_ret.findtext("Name") or term.name).strip()
+    acc_number = (account_ret.findtext("AccountNumber") or term.acc_number).strip()
+    acc_type = (account_ret.findtext("AccountType") or term.acc_type).strip()
 
-    return PaymentTerm(record_id=record_id, name=name, source="quickbooks")
+    return Account(id=id, name=name, acc_type=acc_type, acc_number=acc_number, source="quickbooks")
 
 
 def _escape_xml(value: str) -> str:
@@ -217,4 +225,4 @@ def _escape_xml(value: str) -> str:
     )
 
 
-__all__ = ["fetch_payment_terms", "add_payment_term", "add_payment_terms_batch"]
+__all__ = ["fetch_accounts", "add_account", "add_accounts_batch"]

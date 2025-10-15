@@ -18,7 +18,7 @@ class Account:
     acc_number: int
     name: str
     id: str
-    SourceLiteral = SourceLiteral
+    source: SourceLiteral
 
 
 @dataclass(slots=True)
