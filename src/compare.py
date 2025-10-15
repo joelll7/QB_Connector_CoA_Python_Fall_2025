@@ -124,7 +124,7 @@ def compare_account_types(
         if excel_name != qb_name:
             conflicts.append(
                 Conflict(
-                    account_type=atype,  # Updated to reflect comparison of account types
+                    AccountType=atype,  # Updated to reflect comparison of account types
                     excel_name=excel_name,
                     qb_name=qb_name,
                     reason="name_mismatch",
