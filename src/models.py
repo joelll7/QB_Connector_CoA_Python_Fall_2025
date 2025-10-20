@@ -14,8 +14,8 @@ ConflictReason = Literal["name_mismatch", "missing_in_excel", "missing_in_quickb
 class Account:
     """Represents an account synchronised between Excel and QuickBooks."""
 
-    acc_type: str
-    acc_number: int
+    type: str
+    number: int
     name: str
     id: str
     source: SourceLiteral
