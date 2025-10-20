@@ -1,6 +1,6 @@
 import pytest
 from src.compare import compare_account_types
-from src.models import AccountTypeModel, ComparisonReport, Conflict, PaymentTerm
+from src.models import ComparisonReport, Conflict, PaymentTerm
 
 def test_compare_account_types():
     excel_terms = [
