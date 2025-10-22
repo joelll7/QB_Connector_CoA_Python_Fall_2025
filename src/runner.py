@@ -68,11 +68,11 @@ def run_payment_terms(
     # !!!!
 
     try:
-        excel_accounts = excel_reader.extract_payment_terms(Path(workbook_path))
-        qb_terms = qb_gateway.fetch_payment_terms(company_file_path)
-        comparison = comparer.compare_payment_terms(excel_terms, qb_terms)
+        excel_accounts = excel_reader.extract_accounts(Path(workbook_path))
+        qb_accounts = qb_gateway.fetch_accounts(company_file_path)
+        comparison = comparer.compare_payment_terms(excel_accounts, qb_accounts)
 
-        added_terms = qb_gateway.add_payment_terms_batch(
+        added_accounts = qb_gateway.add_accounts_batch(
             company_file_path, comparison.excel_only
         )
 
@@ -84,7 +84,7 @@ def run_payment_terms(
             _missing_in_excel_conflict(term) for term in comparison.qb_only
         )
 
-        report_payload["added_terms"] = [_term_to_dict(term) for term in added_terms]
+        report_payload["added_accounts"] = [_account_to_dict(account) for account in added_accounts]
         report_payload["conflicts"] = conflicts
 
     except Exception as exc:  # pragma: no cover - behaviour verified via tests
@@ -95,4 +95,4 @@ def run_payment_terms(
     return report_path
 
 
-__all__ = ["run_payment_terms", "DEFAULT_REPORT_NAME"]
+__all__ = ["run_accounts", "DEFAULT_REPORT_NAME"]
