@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List
 
-from . import comparer, excel_reader, qb_gateway
+from . import compare, excel_reader, qb_gateway
 from .models import Conflict, Account
 from .reporting import iso_timestamp, write_report
 

@@ -11,7 +11,7 @@ ConflictReason = Literal["name_mismatch", "missing_in_excel", "missing_in_quickb
 
 
 @dataclass(slots=True)
-class PaymentTerm:
+class Account:
     """Represents a payment term synchronised between Excel and QuickBooks."""
 
     AccountType: str
