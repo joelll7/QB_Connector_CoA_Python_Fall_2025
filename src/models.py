@@ -25,6 +25,7 @@ class Account:
 class Conflict:
     """Describes a discrepancy between Excel and QuickBooks payment terms."""
 
+    AccountType: str
     id: str
     excel_name: str | None
     qb_name: str | None
