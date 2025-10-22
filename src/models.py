@@ -17,6 +17,7 @@ class PaymentTerm:
     AccountType: str
     number: int
     name: str
+    id: str
     source: SourceLiteral
 
 
@@ -27,6 +28,7 @@ class Conflict:
     AccountType: str
     excel_name: str | None
     qb_name: str | None
+    id: str
     reason: ConflictReason
 
 
