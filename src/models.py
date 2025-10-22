@@ -12,7 +12,7 @@ ConflictReason = Literal["name_mismatch", "missing_in_excel", "missing_in_quickb
 
 @dataclass(slots=True)
 class Account:
-    """Represents a payment term synchronised between Excel and QuickBooks."""
+    """Represents an account synchronised between Excel and QuickBooks."""
 
     AccountType: str
     number: int
@@ -23,7 +23,7 @@ class Account:
 
 @dataclass(slots=True)
 class Conflict:
-    """Describes a discrepancy between Excel and QuickBooks payment terms."""
+    """Describes a discrepancy between Excel and QuickBooks accounts."""
 
     AccountType: str
     excel_name: str | None
@@ -36,13 +36,13 @@ class Conflict:
 class ComparisonReport:
     """Groups comparison outcomes for later processing."""
 
-    excel_only: list[PaymentTerm] = field(default_factory=list)
-    qb_only: list[PaymentTerm] = field(default_factory=list)
+    excel_only: list[Account] = field(default_factory=list)
+    qb_only: list[Account] = field(default_factory=list)
     conflicts: list[Conflict] = field(default_factory=list)
 
 
 __all__ = [
-    "PaymentTerm",
+    "Account",
     "Conflict",
     "ComparisonReport",
     "ConflictReason",
