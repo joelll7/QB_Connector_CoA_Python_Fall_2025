@@ -65,7 +65,7 @@ def compare_account_types(
     1. Compare types based on their ``account_type`` field (case-sensitive)
     2. Build dictionaries or sets for efficient lookup of account types
     3. Identify types unique to each source (Excel-only and QB-only)
-    4. For matching ``account_type`` values, compare the ``name`` fields
+    4. For matching ``account_type`` values, compare the ``name`` fields or account types
     5. If names differ, create a Conflict with reason ``"name_mismatch"``
     6. Return all findings in a ComparisonReport object
 

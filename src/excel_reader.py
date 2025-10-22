@@ -13,7 +13,7 @@ from openpyxl import load_workbook
 
 @dataclass
 class AccountTerm:
-    """Represents a payment term with name and ID.
+    """Represents a payment term with name and account type.
 
     The ID is stored in QuickBooks' StdDiscountDays field for matching purposes.
     """
@@ -28,7 +28,6 @@ def read_payment_terms(file_path: str) -> list[AccountTerm]:
     Expected Excel format:
     - Must contain a sheet named 'chartofaccount'
     - Column C: Payment term names (strings)
-    - Column D: Term ID (integers)
     - Column A: Account Type (strings)
     - Row 1 should contain headers (will be skipped)
     - Data starts from row 2
@@ -89,8 +88,8 @@ def get_qb_payment_terms() -> list[AccountTerm]:
             <?qbxml version="16.0"?>
                 <QBXML>
                     <QBXMLMsgsRq onError="stopOnError">
-                        <AccountQueryRq>
-                        </AccountQueryRq>
+                        <AccountAddRq>
+                        </AccountAddRq>
                     </QBXMLMsgsRq>
                 </QBXML>"""
 
@@ -103,7 +102,7 @@ def get_qb_payment_terms() -> list[AccountTerm]:
             import xml.etree.ElementTree as ET
 
             root = ET.fromstring(response)
-            for acc_ret in root.findall(".//AccountRet"):
+            for acc_ret in root.findall(".//AccountAdd"):
                 name_elem = acc_ret.find("Name")
                 account_type_elem = acc_ret.find("AccountType ")
 
@@ -111,7 +110,7 @@ def get_qb_payment_terms() -> list[AccountTerm]:
                     name = name_elem.text
                     if name is not None and account_type_elem.text is not None:
                         try:
-                            ID = int(account_type_elem.text)
+                            acc_num = int(account_type_elem.text)
                             account_terms.append(AccountTerm(name=name, acc_type=AccountType))
                         except (ValueError, TypeError):
                             # Skip terms without valid discount days
