@@ -15,6 +15,7 @@ class PaymentTerm:
     """Represents a payment term synchronised between Excel and QuickBooks."""
 
     AccountType: str
+    number: int
     name: str
     source: SourceLiteral
 
