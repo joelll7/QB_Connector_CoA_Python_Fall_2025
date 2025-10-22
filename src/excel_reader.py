@@ -49,6 +49,7 @@ def read_payment_terms(file_path: str) -> list[AccountTerm]:
     for row in sheet.iter_rows(min_row=2, values_only=True):
         name = row[0]
         acc_type = row[1]
+        acc_num = row[2]
 
         # Skip rows with missing data
         if name is None or acc_type is None:
@@ -58,6 +59,7 @@ def read_payment_terms(file_path: str) -> list[AccountTerm]:
         try:
             name_str = str(name).strip()
             acc_type_str = str(acc_type).strip()
+            acc_num_int = int(acc_num)  # Validate acc_num is an integer
             if name_str:  # Only add if name is not empty
                 payment_terms.append(AccountTerm(name=name_str, acc_type=acc_type_str))
         except (ValueError, TypeError):
@@ -97,7 +99,7 @@ def get_qb_payment_terms() -> list[AccountTerm]:
 
         # Parse the response
         account_terms = []
-        if "<AccountRet>" in response:
+        if "<AccountAdd>" in response:
             # Extract each term from the response
             import xml.etree.ElementTree as ET
 
@@ -105,6 +107,7 @@ def get_qb_payment_terms() -> list[AccountTerm]:
             for acc_ret in root.findall(".//AccountAdd"):
                 name_elem = acc_ret.find("Name")
                 account_type_elem = acc_ret.find("AccountType ")
+                account_num_elem = acc_ret.find("AccountNumber")
 
                 if name_elem is not None and account_type_elem is not None:
                     name = name_elem.text
