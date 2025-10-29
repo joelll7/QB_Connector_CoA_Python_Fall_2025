@@ -11,7 +11,7 @@ try:
 except ImportError:  # pragma: no cover
     win32com = None  # type: ignore
 
-from .models import Account
+from models import Account
 
 
 APP_NAME = "Quickbooks Connector" # do not chanege this
@@ -39,9 +39,9 @@ def _qb_session() -> Iterator[tuple[object, object]]:
 
 def _send_qbxml(qbxml: str) -> ET.Element:
     with _qb_session() as (session, ticket):
-        print(f"Sending QBXML:\n{qbxml}")  # Debug output
+        #print(f"Sending QBXML:\n{qbxml}")  # Debug output
         raw_response = session.ProcessRequest(ticket, qbxml)  # type: ignore[attr-defined]
-        print(f"Received response:\n{raw_response}")  # Debug output
+        #print(f"Received response:\n{raw_response}")  # Debug output
     return _parse_response(raw_response)
 
 
@@ -75,10 +75,10 @@ def fetch_chart_of_accounts(company_file: str | None = None) -> List[Account]:
     root = _send_qbxml(qbxml)
     terms: List[Account] = []
     for account_ret in root.findall(".//AccountRet"):
-        id = account_ret.findtext("Desc").strip()
-        name = (account_ret.findtext("Name") or "").strip()
-        acc_number = (account_ret.findtext("AccountNumber") or "").strip()
-        acc_type = (account_ret.findtext("AccountType") or "").strip()
+        id = (account_ret.findtext("Desc") or "")
+        name = (account_ret.findtext("Name") or "")
+        acc_number = (account_ret.findtext("AccountNumber") or "")
+        acc_type = (account_ret.findtext("AccountType") or "")
 
         if not id:
             continue
@@ -89,7 +89,7 @@ def fetch_chart_of_accounts(company_file: str | None = None) -> List[Account]:
         if not id:
             continue
 
-        terms.append(Account(id=id, name=name, acc_number=acc_number, acc_type=acc_type, source="quickbooks"))
+        terms.append(Account(id=id, name=name, number=acc_number, AccountType=acc_type, source="quickbooks"))
 
     return terms
 
@@ -116,8 +116,8 @@ def add_accounts_batch(
             f"    <AccountAddRq>\n"
             f"      <AccountAdd>\n"
             f"        <Name>{_escape_xml(term.name)}</Name>\n"
-            f"        <AccountType>{_escape_xml(term.acc_type)}</AccountType>\n" #UNSURE ABOUT THIS
-            f"        <AccountNumber>{_escape_xml(term.acc_number)}</AccountNumber>\n"
+            f"        <AccountType>{_escape_xml(term.AccountType)}</AccountType>\n" #UNSURE ABOUT THIS
+            f"        <AccountNumber>{_escape_xml(term.number)}</AccountNumber>\n"
             f"        <Desc>{desc_value}</Desc>\n"
             f"      </AccountAdd>\n"
             f"    </AccountAddRq>"
@@ -177,8 +177,8 @@ def add_account(company_file: str | None, term: Account) -> Account:
         "    <AccountAddRq>\n"
         "      <AccountAdd>\n"
         f"        <Name>{_escape_xml(term.name)}</Name>\n"
-        f"        <AccountType>{_escape_xml(term.acc_type)}</AccountType>\n" #UNSURE ABOUT THIS
-        f"        <AccountNumber>{_escape_xml(term.acc_number)}</AccountNumber>\n"
+        f"        <AccountType>{_escape_xml(term.AccountType)}</AccountType>\n" #UNSURE ABOUT THIS
+        f"        <AccountNumber>{_escape_xml(term.number)}</AccountNumber>\n"
         f"        <Desc>{desc_value}</Desc>\n"
         "      </AccountAdd>\n"
         "    </AccountAddRq>\n"
@@ -193,14 +193,14 @@ def add_account(company_file: str | None, term: Account) -> Account:
         if "already in use" in str(exc):
             # Return the term as-is since it already exists
             return Account(
-                id=term.id, name=term.name, acc_type=term.acc_type, acc_number=term.acc_number, source="quickbooks"
+                id=term.id, name=term.name, acc_type=term.AccountType, acc_number=term.acc_number, source="quickbooks"
             )
         raise
 
     account_ret = root.find(".//AccountRet")
     if account_ret is None:
         return Account(
-            record_id=term.id, name=term.name, acc_type=term.acc_type, acc_number=term.acc_number, source="quickbooks"
+            record_id=term.id, name=term.name, acc_type=term.AccountType, acc_number=term.acc_number, source="quickbooks"
         )
 
     id = account_ret.findtext("Desc") or term.id
@@ -209,8 +209,8 @@ def add_account(company_file: str | None, term: Account) -> Account:
     except ValueError:
         id = id.strip()
     name = (account_ret.findtext("Name") or term.name).strip()
-    acc_number = (account_ret.findtext("AccountNumber") or term.acc_number).strip()
-    acc_type = (account_ret.findtext("AccountType") or term.acc_type).strip()
+    acc_number = (account_ret.findtext("AccountNumber") or term.number).strip()
+    acc_type = (account_ret.findtext("AccountType") or term.AccountType).strip()
 
     return Account(id=id, name=name, acc_type=acc_type, acc_number=acc_number, source="quickbooks")
 
@@ -226,3 +226,16 @@ def _escape_xml(value: str) -> str:
 
 
 __all__ = ["fetch_accounts", "add_account", "add_accounts_batch"]
+
+if __name__ == "__main__":  # pragma: no cover - manual invocation
+    import sys
+    
+    # Allow running as a script: poetry run python payment_terms_cli/excel_reader.py
+    try:
+        qb_accounts = fetch_chart_of_accounts("")
+        for acc in qb_accounts:
+            print(acc)
+    except Exception as e:
+        print(f"Error: {e}")
+        print("Usage: python payment_terms_cli/excel_reader.py <path-to-workbook.xlsx>")
+        sys.exit(1)
