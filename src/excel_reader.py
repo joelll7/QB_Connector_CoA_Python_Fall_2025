@@ -9,7 +9,7 @@ from openpyxl import load_workbook  # Excel file loader
 from models import Account  # Domain model used as output
 
 
-def extract_payment_terms(workbook_path: Path) -> List[Account]:
+def extract_account(workbook_path: Path) -> List[Account]:
     """Return payment terms parsed from the Excel workbook.
 
     Students should implement this function using ``openpyxl``. It must read the
@@ -93,14 +93,14 @@ def extract_payment_terms(workbook_path: Path) -> List[Account]:
     return terms  # Return the extracted list of payment terms
 
 
-__all__ = ["extract_payment_terms"]  # Public API
+__all__ = ["extract_account"]  # Public API
 
 if __name__ == "__main__":  # pragma: no cover - manual invocation
     import sys
 
     # Allow running as a script: poetry run python payment_terms_cli/excel_reader.py
     try:
-        terms = extract_payment_terms(Path("C:\\Users\\KieblesD\\Project\\QB_Connector_CoA_Python_Fall_2025\\company_data.xlsx"))
+        terms = extract_account(Path("C:\\Users\\KieblesD\\Project\\QB_Connector_CoA_Python_Fall_2025\\company_data.xlsx"))
         for term in terms:
             print(term)
     except Exception as e:
