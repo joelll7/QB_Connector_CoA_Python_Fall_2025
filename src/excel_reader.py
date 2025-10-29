@@ -6,10 +6,10 @@ from typing import List  # Concrete list type for return value
 from openpyxl import load_workbook  # Excel file loader
 
 # Use absolute import so it works both as module and script from project root
-from models import AccountTerm  # Domain model used as output
+from models import Account  # Domain model used as output
 
 
-def extract_payment_terms(workbook_path: Path) -> List[AccountTerm]:
+def extract_payment_terms(workbook_path: Path) -> List[Account]:
     """Return payment terms parsed from the Excel workbook.
 
     Students should implement this function using ``openpyxl``. It must read the
@@ -48,7 +48,7 @@ def extract_payment_terms(workbook_path: Path) -> List[AccountTerm]:
             return None
         return row[idx]
 
-    terms: List[AccountTerm] = []  # Accumulator for valid terms
+    terms: List[Account] = []  # Accumulator for valid terms
     try:
         for row in rows:  # Iterate over each data row
             raw_id = _value(row, "ID")  # Expected ID column (e.g., number of days)
@@ -85,7 +85,7 @@ def extract_payment_terms(workbook_path: Path) -> List[AccountTerm]:
 
             # Construct the domain object tagged as sourced from Excel
             terms.append(
-                AccountTerm(number=number, id=record_id, name=name_str, AccountType=type_str, source="excel")
+                Account(number=number, id=record_id, name=name_str, AccountType=type_str, source="excel")
             )
     finally:
         workbook.close()  # Always close the workbook handle
