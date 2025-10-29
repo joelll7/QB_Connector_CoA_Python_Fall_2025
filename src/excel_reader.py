@@ -68,6 +68,8 @@ def extract_payment_terms(workbook_path: Path) -> List[AccountTerm]:
                 continue  # Skip blank types
             if raw_id in (None, ""):
                 continue  # Skip rows without an ID
+            if num in (None, ""):
+                continue  # Skip rows without a Number
 
             try:
                 record_id = str(int(raw_id))  # Normalise numerics (e.g., 30.0 -> "30")
