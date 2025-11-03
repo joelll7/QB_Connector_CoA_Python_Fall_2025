@@ -6,7 +6,7 @@ from typing import List  # Concrete list type for return value
 from openpyxl import load_workbook  # Excel file loader
 
 # Use absolute import so it works both as module and script from project root
-from models import Account  # Domain model used as output
+from .models import Account  # Domain model used as output
 
 
 def extract_account(workbook_path: Path) -> List[Account]:
@@ -72,8 +72,10 @@ def extract_account(workbook_path: Path) -> List[Account]:
                 continue  # Skip rows without a Number
 
             try:
-                record_id = str(int(raw_id))  # Normalise numerics (e.g., 30.0 -> "30")
-                number = str(int(num))
+                record_id = str(
+                    raw_id
+                ).strip()  # Normalise numerics (e.g., 30.0 -> "30")
+                number = str(num).strip()
             except (TypeError, ValueError):
                 record_id = str(raw_id).strip()  # Fallback to string trimming
                 number = str(num).strip()
@@ -81,11 +83,17 @@ def extract_account(workbook_path: Path) -> List[Account]:
             if not record_id:
                 continue  # Skip empty/invalid IDs
             if not number:
-                continue  # Skip empty/invalid Numbers 
+                continue  # Skip empty/invalid Numbers
 
             # Construct the domain object tagged as sourced from Excel
             terms.append(
-                Account(number=number, id=record_id, name=name_str, AccountType=type_str, source="excel")
+                Account(
+                    number=number,
+                    id=record_id,
+                    name=name_str,
+                    AccountType=type_str,
+                    source="excel",
+                )
             )
     finally:
         workbook.close()  # Always close the workbook handle
@@ -100,7 +108,11 @@ if __name__ == "__main__":  # pragma: no cover - manual invocation
 
     # Allow running as a script: poetry run python payment_terms_cli/excel_reader.py
     try:
-        terms = extract_account(Path("C:\\Users\\KieblesD\\Project\\QB_Connector_CoA_Python_Fall_2025\\company_data.xlsx"))
+        terms = extract_account(
+            Path(
+                "C:\\Users\\KieblesD\\Project\\QB_Connector_CoA_Python_Fall_2025\\company_data.xlsx"
+            )
+        )
         for term in terms:
             print(term)
     except Exception as e:

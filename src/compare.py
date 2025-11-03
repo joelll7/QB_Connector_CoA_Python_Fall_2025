@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from typing import Dict, Iterable
 
-from .models import ComparisonReport, Conflict, PaymentTerm
+from .models import ComparisonReport, Conflict, Account
 
 
 def compare_account_types(
-    excel_terms: Iterable[PaymentTerm],
-    qb_terms: Iterable[PaymentTerm],
+    excel_terms: Iterable[Account],
+    qb_terms: Iterable[Account],
 ) -> ComparisonReport:
     """Compare Excel and QuickBooks account types and identify discrepancies.
 
@@ -107,15 +107,11 @@ def compare_account_types(
     Note: INCOME appears in both sources with the same name, so it does not appear
     in any of the report's collections (no conflict, not Excel-only, not QB-only).
     """
-    excel_dict: Dict[str, PaymentTerm] = {term.AccountType: term for term in excel_terms}
-    qb_dict: Dict[str, PaymentTerm] = {term.AccountType: term for term in qb_terms}
+    excel_dict: Dict[str, Account] = {term.AccountType: term for term in excel_terms}
+    qb_dict: Dict[str, Account] = {term.AccountType: term for term in qb_terms}
 
-    excel_only = [
-        term for atype, term in excel_dict.items() if atype not in qb_dict
-    ]
-    qb_only = [
-        term for atype, term in qb_dict.items() if atype not in excel_dict
-    ]
+    excel_only = [term for atype, term in excel_dict.items() if atype not in qb_dict]
+    qb_only = [term for atype, term in qb_dict.items() if atype not in excel_dict]
 
     conflicts = []
     for atype in set(excel_dict.keys()).intersection(qb_dict.keys()):
@@ -125,6 +121,7 @@ def compare_account_types(
             conflicts.append(
                 Conflict(
                     AccountType=atype,  # Updated to reflect comparison of account types
+                    id=excel_dict[atype].id,
                     excel_name=excel_name,
                     qb_name=qb_name,
                     reason="name_mismatch",

@@ -15,7 +15,7 @@ class Account:
     """Represents an account synchronised between Excel and QuickBooks."""
 
     AccountType: str
-    number: int
+    number: str
     name: str
     id: str
     source: SourceLiteral
