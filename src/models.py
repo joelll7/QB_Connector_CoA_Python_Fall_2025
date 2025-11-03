@@ -1,10 +1,9 @@
-"""Domain models for payment term synchronisation."""
+"""Domain models for account synchronisation."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Literal
-
 
 SourceLiteral = Literal["excel", "quickbooks"]
 ConflictReason = Literal["name_mismatch", "missing_in_excel", "missing_in_quickbooks"]
@@ -20,10 +19,14 @@ class Account:
     id: str
     source: SourceLiteral
 
+    def __str__(self) -> str:
+        """Return a string representation of the Account."""
+        return f"Account(id={self.id}, name={self.name}, number={self.number}, type={self.AccountType}, source={self.source})\n"
+
 
 @dataclass(slots=True)
 class Conflict:
-    """Describes a discrepancy between Excel and QuickBooks payment terms."""
+    """Describes a discrepancy between Excel and QuickBooks accounts."""
 
     AccountType: str
     id: str

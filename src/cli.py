@@ -9,6 +9,7 @@ from .runner import run_payment_terms
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Entry point for the payment terms synchronisation CLI tool."""
     parser = argparse.ArgumentParser(
         description="Synchronise payment terms between Excel and QuickBooks"
     )

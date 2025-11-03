@@ -3,20 +3,19 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List
 
-from . import comparer, excel_reader, qb_gateway
-from .models import Conflict, Account
+from . import compare, excel_reader, qb_gateway
+from .models import Account, Conflict
 from .reporting import iso_timestamp, write_report
 
 DEFAULT_REPORT_NAME = "chart_of_accounts_report.json"
 
 
-def _account_to_dict(account: Account) -> Dict[str, str, str, str]:
+def _account_to_dict(account: Account) -> dict[str, str, str, str]:
     return {"id": account.id, "name": account.name, "type": account.type, "number": account.number, "source": account.source}
 
 
-def _conflict_to_dict(conflict: Conflict) -> Dict[str, object]:
+def _conflict_to_dict(conflict: Conflict) -> dict[str, object]:
     return {
         "record_id": conflict.id,
         "excel_name": conflict.excel_name,
@@ -25,7 +24,7 @@ def _conflict_to_dict(conflict: Conflict) -> Dict[str, object]:
     }
 
 
-def _missing_in_excel_conflict(account: Account) -> Dict[str, object]:
+def _missing_in_excel_conflict(account: Account) -> dict[str, object]:
     return {
         "record_id": account.id,
         "excel_name": None,
@@ -34,7 +33,7 @@ def _missing_in_excel_conflict(account: Account) -> Dict[str, object]:
     }
 
 
-def run_payment_terms(
+def run_accounts(
     company_file_path: str,
     workbook_path: str,
     *,
@@ -53,9 +52,8 @@ def run_payment_terms(
     Returns:
         Path to the generated JSON report.
     """
-
     report_path = Path(output_path) if output_path else Path(DEFAULT_REPORT_NAME)
-    report_payload: Dict[str, object] = {
+    report_payload: dict[str, object] = {
         "status": "success",
         "generated_at": iso_timestamp(),
         "added_terms": [],
@@ -63,20 +61,20 @@ def run_payment_terms(
         "error": None,
     }
 
-    # !!!!    
+    # !!!!
     #vvvvvvvvvvvvvvvvvvvvvvvvvvv MUST BE UPDATED vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     # !!!!
 
     try:
         excel_accounts = excel_reader.extract_accounts(Path(workbook_path))
         qb_accounts = qb_gateway.fetch_accounts(company_file_path)
-        comparison = comparer.compare_payment_terms(excel_accounts, qb_accounts)
+        comparison = compare.compare_payment_terms(excel_accounts, qb_accounts)
 
         added_accounts = qb_gateway.add_accounts_batch(
             company_file_path, comparison.excel_only
         )
 
-        conflicts: List[Dict[str, object]] = []
+        conflicts: list[dict[str, object]] = []
         conflicts.extend(
             _conflict_to_dict(conflict) for conflict in comparison.conflicts
         )
