@@ -1,5 +1,5 @@
 [project]
-name = "quickbook-connector"
+name = "src"
 version = "0.1.0"
 description = ""
 authors = [
@@ -16,11 +16,6 @@ dependencies = [
     "pytest (>=8.4.2,<9.0.0)",
     "pytest-coverage (>=0.0,<0.1)",
     "pyinstaller (>=6.16.0,<7.0.0)"
-]
-
-[tool.poetry]
-packages = [
-    { include = "quickbook_connector" }
 ]
 
 [build-system]
