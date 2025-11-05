@@ -196,7 +196,7 @@ def add_account(company_file: str | None, term: Account) -> Account:
     account_ret = root.find(".//AccountRet")
     if account_ret is None:
         return Account(
-            record_id=term.id,
+            id=term.id,
             name=term.name,
             acc_type=term.AccountType,
             acc_number=term.number,
