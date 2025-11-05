@@ -5,76 +5,55 @@ This module tests the core Excel processing functionality and payment terms impo
 
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock, patch
 
 import pytest
 from openpyxl import Workbook
 
-from src.excel_reader import (
-    AccountTerm,
-    read_payment_terms
-)
+from src.excel_reader import extract_account
 
 
-def create_payment_terms_excel(file_path: str) -> None:
-    """Create a test Excel file with payment terms data."""
+def create_test_excel(file_path: str):
+    """Create a test Excel file with account data."""
+
     workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "chartofaccount"
 
-    # Remove default sheet
-    workbook.remove(workbook.active)
+    # Add headers
+    sheet.append(["ID", "Number", "Name", "Type"])
 
-    # Create payment_terms sheet
-    sheet = workbook.create_sheet("chartofaccount")
-    sheet["B1"] = "Name"
-    sheet["A1"] = "acc_type"
-
-    # Add test payment terms
-    payment_terms_data = [
-        ("Materials", 1, "Cost of Goods Sold"),
-        ("Office Supplies", 2, "Expense")
-    ]
-
-    for i, (name, ID, acc_type) in enumerate(payment_terms_data, start=2):
-        sheet[f"B{i}"] = name
-        sheet[f"A{i}"] = acc_type
+    # Add test data
+    sheet.append([1, 101, "Materials", "Cost of Goods Sold"])
+    sheet.append([2, 102, "Office Supplies", "Expense"])
 
     workbook.save(file_path)
 
 
-class TestPaymentTerms:
-    """Test cases for payment terms functionality."""
+def test_extract_account():
+    """Test the extract_account function."""
+    with pytest.raises(FileNotFoundError):
+        extract_account(Path("nonexistent.xlsx"))
 
-    @pytest.fixture
-    def payment_terms_excel_file(self):
-        """Create a temporary Excel file with payment terms for testing."""
-        tmp = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
+    # Create a temporary Excel file
+
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
         tmp_path = Path(tmp.name)
-        try:
-            tmp.close()
-            create_payment_terms_excel(str(tmp_path))
-            yield str(tmp_path)
-        finally:
-            try:
-                if tmp_path.exists():
-                    tmp_path.unlink()
-            except PermissionError:
-                pass
+        create_test_excel(tmp_path)
 
-    def test_payment_term_dataclass(self):
-        """Test AccountTerm dataclass."""
-        term = AccountTerm(name="Materials", acc_type="Cost of Goods Sold")
-        assert term.name == "Materials"
-        assert term.acc_type == "Cost of Goods Sold"
+        # Extract accounts
+        accounts = extract_account(tmp_path)
 
-    def test_read_account_terms(self, payment_terms_excel_file):
-        """Test reading account terms from Excel file."""
-        payment_terms = read_payment_terms(payment_terms_excel_file)
+        # Assertions
+        assert len(accounts) == 2
 
-        assert len(payment_terms) == 2
-        assert payment_terms[0].name == "Cost of Goods Sold"
-        assert payment_terms[1].name or payment_terms[1].acc_type == "Expense" 
+        assert accounts[0].id == "1"
+        assert accounts[0].number == "101"
+        assert accounts[0].name == "Materials"
+        assert accounts[0].AccountType == "Cost of Goods Sold"
+        assert accounts[0].source == "excel"
 
-    def test_read_payment_terms_file_not_found(self):
-        """Test handling of non-existent payment terms file."""
-        with pytest.raises(FileNotFoundError):
-            read_payment_terms("nonexistent.xlsx")
+        assert accounts[1].id == "2"
+        assert accounts[1].number == "102"
+        assert accounts[1].name == "Office Supplies"
+        assert accounts[1].AccountType == "Expense"
+        assert accounts[1].source == "excel"
