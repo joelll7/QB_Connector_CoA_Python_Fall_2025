@@ -12,7 +12,7 @@ from openpyxl import Workbook
 from src.excel_reader import extract_account
 
 
-def create_test_excel(file_path: str):
+def create_test_excel(file_path: Path) -> None:
     """Create a test Excel file with account data."""
 
     workbook = Workbook()
@@ -29,7 +29,7 @@ def create_test_excel(file_path: str):
     workbook.save(file_path)
 
 
-def test_extract_account():
+def test_extract_account() -> None:
     """Test the extract_account function."""
     with pytest.raises(FileNotFoundError):
         extract_account(Path("nonexistent.xlsx"))
