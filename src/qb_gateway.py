@@ -7,9 +7,9 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 
 try:
-    import win32com.client  # type: ignore
+    import win32com.client
 except ImportError:  # pragma: no cover
-    win32com = None  # type: ignore
+    win32com = None
 
 from models import Account
 
@@ -88,7 +88,13 @@ def fetch_accounts(company_file: str | None = None) -> list[Account]:
             continue
 
         terms.append(
-            Account(id=id, name=name, number=acc_number, AccountType=acc_type, source="quickbooks")
+            Account(
+                id=id,
+                name=name,
+                number=acc_number,
+                AccountType=acc_type,
+                source="quickbooks",
+            )
         )
 
     return terms
@@ -105,7 +111,9 @@ def add_accounts_batch(company_file: str | None, terms: list[Account]) -> list[A
         try:
             desc_value = int(term.id)
         except ValueError as exc:
-            raise ValueError(f"id must be numeric for QuickBooks account terms: {term.id}") from exc
+            raise ValueError(
+                f"id must be numeric for QuickBooks account terms: {term.id}"
+            ) from exc
 
         requests.append(
             f"    <AccountAddRq>\n"
@@ -137,7 +145,7 @@ def add_accounts_batch(company_file: str | None, terms: list[Account]) -> list[A
     # Parse all responses
     added_accounts: list[Account] = []
     for account_ret in root.findall(".//AccountRet"):
-        id = account_ret.findtext("Desc").strip()
+        id = account_ret.findtext("Desc")
         if not id:
             continue
         try:
@@ -145,10 +153,20 @@ def add_accounts_batch(company_file: str | None, terms: list[Account]) -> list[A
         except ValueError:
             id = id.strip()
         name = (account_ret.findtext("Name") or "").strip()
-        acc_number = (account_ret.findtext("AccountNumber") or "").strip()
+        acc_number = account_ret.findtext("AccountNumber") or ""
         acc_type = (account_ret.findtext("AccountType") or "").strip()
         added_accounts.append(
+<<<<<<< HEAD
             Account(id=id, name=name, number=acc_number, AccountType=acc_type, source="quickbooks")
+=======
+            Account(
+                id=id,
+                name=name,
+                acc_number=acc_number,
+                acc_type=acc_type,
+                source="quickbooks",
+            )
+>>>>>>> f5401cccd2e413fb17959136dc4f724382e5cf74
         )
 
     return added_accounts
@@ -212,7 +230,9 @@ def add_account(company_file: str | None, term: Account) -> Account:
     acc_number = (account_ret.findtext("AccountNumber") or term.number).strip()
     acc_type = (account_ret.findtext("AccountType") or term.AccountType).strip()
 
-    return Account(id=id, name=name, acc_type=acc_type, acc_number=acc_number, source="quickbooks")
+    return Account(
+        id=id, name=name, acc_type=acc_type, acc_number=acc_number, source="quickbooks"
+    )
 
 
 def _escape_xml(value: str) -> str:
@@ -240,6 +260,7 @@ if __name__ == "__main__":  # pragma: no cover - manual invocation
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
+<<<<<<< HEAD
 
 """
 
@@ -252,3 +273,5 @@ try:
 except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
+=======
+>>>>>>> f5401cccd2e413fb17959136dc4f724382e5cf74

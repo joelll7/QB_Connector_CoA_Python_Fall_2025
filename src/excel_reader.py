@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from pathlib import Path  # Filesystem path management
 from typing import List  # Concrete list type for return value
+from typing import Any, Tuple  # Generic type for cell values
 
 from openpyxl import load_workbook  # Excel file loader
+from openpyxl.cell.cell import Cell  # Excel cell type
 
 # Use absolute import so it works both as module and script from project root
 from .models import Account  # Domain model used as output
@@ -42,7 +44,9 @@ def extract_account(workbook_path: Path) -> List[Account]:
     ]
     header_index = {header: idx for idx, header in enumerate(headers)}
 
-    def _value(row, column_name: str):  # Helper to safely access a column
+    def _value(
+        row: Tuple[Cell, ...], column_name: str
+    ) -> Any:  # Helper to safely access a column
         idx = header_index.get(column_name)
         if idx is None or idx >= len(row):
             return None

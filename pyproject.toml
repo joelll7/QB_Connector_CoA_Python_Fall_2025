@@ -24,3 +24,12 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 fix = true
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
+
+[dependency-groups]
+dev = [
+    "pre-commit (>=4.3.0,<5.0.0)"
+]

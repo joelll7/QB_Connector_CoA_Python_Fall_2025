@@ -2,7 +2,7 @@ from src.compare import compare_account_types
 from src.models import Account
 
 
-def test_compare_account_types():
+def test_compare_account_types() -> None:
     excel_terms = [
         Account(
             AccountType="ASSET", number="10000", name="Asset", id="1", source="excel"
