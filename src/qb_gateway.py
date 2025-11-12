@@ -148,7 +148,7 @@ def add_accounts_batch(company_file: str | None, terms: list[Account]) -> list[A
         acc_number = (account_ret.findtext("AccountNumber") or "").strip()
         acc_type = (account_ret.findtext("AccountType") or "").strip()
         added_accounts.append(
-            Account(id=id, name=name, acc_number=acc_number, acc_type=acc_type, source="quickbooks")
+            Account(id=id, name=name, number=acc_number, AccountType=acc_type, source="quickbooks")
         )
 
     return added_accounts
@@ -187,8 +187,8 @@ def add_account(company_file: str | None, term: Account) -> Account:
             return Account(
                 id=term.id,
                 name=term.name,
-                acc_type=term.AccountType,
-                acc_number=term.number,
+                AccountType=term.AccountType,
+                number=term.number,
                 source="quickbooks",
             )
         raise
@@ -198,8 +198,8 @@ def add_account(company_file: str | None, term: Account) -> Account:
         return Account(
             id=term.id,
             name=term.name,
-            acc_type=term.AccountType,
-            acc_number=term.number,
+            AccountType=term.AccountType,
+            number=term.number,
             source="quickbooks",
         )
 
@@ -230,10 +230,25 @@ __all__ = ["fetch_accounts", "add_account", "add_accounts_batch"]
 if __name__ == "__main__":  # pragma: no cover - manual invocation
     import sys
 
+
+"""Simple test invocation to fetch and print accounts.
+
     try:
         qb_accounts = fetch_accounts("")
         for acc in qb_accounts:
             print(acc)
     except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
+"""
+
+try:
+    acc1 = Account(id="101", name="Test Account 101", number="10101", AccountType="OtherIncome", source="quickbooks")
+    acc2 = Account(id="102", name="Test Account 102", number="20202", AccountType="OtherExpense", source="quickbooks")
+    added_batch = add_accounts_batch(None, [acc1, acc2])
+    for acc in added_batch:
+        print(f"Added in batch: {acc}")
+except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
