@@ -11,36 +11,38 @@ def compare_account_types(
     excel_terms: Iterable[Account],
     qb_terms: Iterable[Account],
 ) -> ComparisonReport:
-    """Compare Excel and QuickBooks account types and identify discrepancies.
+    """Compare Excel and QuickBooks accounts and identify discrepancies.
 
-    This function reconciles account types from two sources (Excel and QuickBooks)
-    by comparing their ``account_type`` field. Students must implement
+    This function reconciles accounts from two sources (Excel and QuickBooks)
+    by comparing their ``id`` field. Students must implement
     the logic to detect three types of discrepancies:
 
-    1. Types that exist only in Excel
-    2. Types that exist only in QuickBooks
-    3. Types with matching ``account_type`` but different ``name`` values
+    1. Accounts that exist only in Excel
+    2. Accounts that exist only in QuickBooks
+    3. Accounts with matching ``id`` but different ``name`` and/or ``number`` and/or ``AccountType`` values
 
     **Input Parameters:**
 
-    :param excel_terms: An iterable of :class:`~payment_terms_cli.models.PaymentTerm`
-        objects sourced from Excel. Each PaymentTerm has:
+    :param excel_terms: An iterable of :class:`~src.models.Account`
+        objects sourced from Excel. Each Account has:
 
-        - ``account_type`` (str): Unique identifier for the account type
+        - ``AccountType`` (str): account type identifier
+        - ``id`` (str): Unique identifier of the account
         - ``name`` (str): Display name of the account type
+        - ``number`` (str): Account number
         - ``source`` (SourceLiteral): Will be "excel" for these terms
 
-        Example: ``PaymentTerm(account_type="EXPENSE", name="Expense", source="excel")``
+        Example: ``Account(AccountType="Other Expense", id="101" name="Expense", number="123", source="excel")``
 
-    :param qb_terms: An iterable of :class:`~payment_terms_cli.models.PaymentTerm`
-        objects sourced from QuickBooks. Structure is identical to ``excel_terms``
+    :param qb_accounts: An iterable of :class:`~src.models.Account`
+        objects sourced from QuickBooks. Structure is identical to ``excel_accounts``
         but with ``source="quickbooks"``.
 
-        Example: ``PaymentTerm(account_type="EXPENSE", name="Expenses", source="quickbooks")``
+        Example: ``Account(AccountType="Other Expense", id="101" name="Expense", number="123", source="quickbooks")``
 
     **Return Value:**
 
-    :return: A :class:`~payment_terms_cli.models.ComparisonReport` object containing
+    :return: A :class:`~src.models.ComparisonReport` object containing
         three lists that categorize all discrepancies found:
 
         - ``excel_only`` (list[PaymentTerm]): Types with ``account_type`` values that
@@ -51,22 +53,30 @@ def compare_account_types(
           appear in ``qb_terms`` but NOT in ``excel_terms``. These represent account
           types that may need to be removed from QuickBooks or added to Excel.
 
-        - ``conflicts`` (list[Conflict]): Types where the same ``account_type`` exists
-          in both sources but the ``name`` field differs. Each
-          :class:`~payment_terms_cli.models.Conflict` must have:
+        - ``conflicts`` (list[Conflict]): Types where the same ``id`` exists
+          in both sources but the ``name`` and/or ``number`` and/or ``AccountType`` 
+          field differs. Each :class:`~src.models.Conflict` must have:
 
-          - ``account_type`` (str): The shared account type
-          - ``excel_name`` (str | None): The name from Excel
-          - ``qb_name`` (str | None): The name from QuickBooks
-          - ``reason`` (ConflictReason): Must be ``"name_mismatch"`` for these cases
+          - id: str Identifier of the account type with the conflict
+
+          - excel_AccountType: str - The account type from Excel
+          - qb_AccountType: str - The account type from QuickBooks
+
+          - excel_name: str | None - The name from Excel
+          - qb_name: str | None - The name from QuickBooks
+
+          - excel_number: str | None - The number from Excel
+          - qb_number: str | None - The number from QuickBooks
+
+         reason: ConflictReason - Set to "data_mismatch" to indicate differing data
 
     **Implementation Requirements:**
 
-    1. Compare types based on their ``account_type`` field (case-sensitive)
+    1. Compare types based on their ``id`` field (case-sensitive)
     2. Build dictionaries or sets for efficient lookup of account types
-    3. Identify types unique to each source (Excel-only and QB-only)
-    4. For matching ``account_type`` values, compare the ``name`` fields or account types
-    5. If names differ, create a Conflict with reason ``"name_mismatch"``
+    3. Identify ids unique to each source (Excel-only and QB-only)
+    4. For matching ``id`` values, compare the ``name``, ``number``, and ``AccountType`` fields
+    5. If any fields differ, create a Conflict with reason ``"data_mismatch"``
     6. Return all findings in a ComparisonReport object
 
     **Example:**
@@ -74,34 +84,23 @@ def compare_account_types(
     Given these inputs::
 
         excel_terms = [
-            PaymentTerm(account_type="EXPENSE", name="Expense", source="excel"),
-            PaymentTerm(account_type="INCOME", name="Income", source="excel"),
-            PaymentTerm(account_type="ASSET", name="Asset", source="excel"),
+            Account(AccountType="ASSET", id="1", name="Asset", number="1000", source="excel"),
+            Account(AccountType="EXPENSE", id="2", name="Expense", number="2000", source="excel"),
+            Account(AccountType="INCOME", id="3", name="Income", number="3000", source="excel"),
         ]
 
         qb_terms = [
-            PaymentTerm(account_type="EXPENSE", name="Expenses", source="quickbooks"),
-            PaymentTerm(account_type="INCOME", name="Income", source="quickbooks"),
-            PaymentTerm(account_type="LIABILITY", name="Liability", source="quickbooks"),
+            Account(AccountType="LIABILITY", id="4", name="Liability", number="4000", source="quickbooks"),
+            Account(AccountType="EXPENSE", id="2", name="Expenses", number="2000", source="quickbooks"),
+            Account(AccountType="INCOME", id="3", name="Income", number="3000", source="quickbooks"),
         ]
 
     Expected output::
 
         ComparisonReport(
-            excel_only=[
-                PaymentTerm(account_type="ASSET", name="Asset", source="excel")
-            ],
-            qb_only=[
-                PaymentTerm(account_type="LIABILITY", name="Liability", source="quickbooks")
-            ],
-            conflicts=[
-                Conflict(
-                    account_type="EXPENSE",
-                    excel_name="Expense",
-                    qb_name="Expenses",
-                    reason="name_mismatch"
-                )
-            ]
+            excel_only=[Account(AccountType="ASSET", id="1", name="Asset", number="1000", source="excel")],
+            qb_only=[Account(AccountType="LIABILITY", id="4", name="Liability", number="4000", source="quickbooks")],
+            conflicts=[AccountType="EXPENSE", id="2", excel_name="Expense", qb_name="Expenses", reason="data_mismatch"]
         )
 
     Note: INCOME appears in both sources with the same name, so it does not appear
