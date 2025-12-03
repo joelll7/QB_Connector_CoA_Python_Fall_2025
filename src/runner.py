@@ -35,14 +35,14 @@ def _account_to_dict(account: Account) -> Dict[str, str]:
 def _conflict_to_dict(conflict: Conflict) -> Dict[str, object]:
     """Convert a Conflict object into a serialisable dict for the report."""
     return {
-        "record_id": conflict.id,
+        "record_id": conflict.record_id,
         "excel_name": conflict.excel_name,
         "qb_name": conflict.qb_name,
         "excel_number": conflict.excel_number,
         "qb_number": conflict.qb_number,
         "excel_type": conflict.excel_AccountType,
         "qb_type": conflict.qb_AccountType,
-        "reason": conflict.reason,
+        "ConflictReason": conflict.ConflictReason,
     }
 
 
@@ -124,7 +124,7 @@ def run_chart_of_accounts(
 
         # Add any terms that exist only in Excel to QuickBooks in a batch
         added_terms = qb_gateway.add_accounts_batch(
-            company_file_path, comparison.excel_only
+            company_file_path, comparison.added_chart_of_accounts
         )
 
         # Build conflicts list: name mismatches + items missing from Excel

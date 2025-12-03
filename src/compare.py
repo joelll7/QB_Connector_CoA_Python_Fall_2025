@@ -115,7 +115,10 @@ def compare_accounts(
     excel_dict: Dict[str, Account] = {account.id: account for account in excel_accounts}
     qb_dict: Dict[str, Account] = {account.id: account for account in qb_accounts}
 
-    excel_only = [account for aID, account in excel_dict.items() if aID not in qb_dict]
+    added_chart_of_accounts = [
+        account for aID, account in excel_dict.items() if aID not in qb_dict
+    ]
+
     qb_only = [account for aID, account in qb_dict.items() if aID not in excel_dict]
 
     conflicts = []
@@ -133,14 +136,14 @@ def compare_accounts(
         ):
             conflicts.append(
                 Conflict(
-                    id=aID,  # Updated to reflect comparison of account types
+                    record_id=aID,  # Updated to reflect comparison of account types
                     excel_name=excel_name,
                     qb_name=qb_name,
                     excel_number=excel_number,
                     qb_number=qb_number,
                     excel_AccountType=excel_atype,
                     qb_AccountType=qb_atype,
-                    reason="data_mismatch",
+                    ConflictReason="data_mismatch",
                 )
             )
 
