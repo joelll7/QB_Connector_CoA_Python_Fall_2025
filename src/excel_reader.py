@@ -19,8 +19,9 @@ def extract_account(workbook_path: Path) -> List[Account]:
     instances with ``source="excel"``, and raise :class:`FileNotFoundError`
     if the workbook cannot be located.
     """
-
     workbook_path = Path(workbook_path)  # Ensure we have a Path instance
+    if not workbook_path.exists():  # Validate the file exists
+        workbook_path = Path(workbook_path)  # Ensure we have a Path instance
     if not workbook_path.exists():  # Validate the file exists
         raise FileNotFoundError(f"Workbook not found: {workbook_path}")
 
@@ -106,7 +107,7 @@ def extract_account(workbook_path: Path) -> List[Account]:
 
 
 __all__ = ["extract_account"]  # Public API
-
+"""
 if __name__ == "__main__":  # pragma: no cover - manual invocation
     import sys
 
@@ -123,3 +124,5 @@ if __name__ == "__main__":  # pragma: no cover - manual invocation
         print(f"Error: {e}")
         print("Usage: python src/excel_reader.py <path-to-workbook.xlsx>")
         sys.exit(1)
+
+"""

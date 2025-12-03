@@ -11,7 +11,7 @@ try:
 except ImportError:  # pragma: no cover
     win32com = None
 
-from models import Account
+from .models import Account
 
 APP_NAME = "Quickbooks Connector"  # do not chanege this
 
@@ -243,11 +243,13 @@ def _escape_xml(value: str) -> str:
 
 __all__ = ["fetch_accounts", "add_account", "add_accounts_batch"]
 
+
+"""
 if __name__ == "__main__":  # pragma: no cover - manual invocation
     import sys
 
 
-"""Simple test invocation to fetch and print accounts.
+Simple test invocation to fetch and print accounts.
 
     try:
         qb_accounts = fetch_accounts("")
@@ -257,7 +259,7 @@ if __name__ == "__main__":  # pragma: no cover - manual invocation
         print(f"Error: {e}")
         sys.exit(1)
 
-"""
+
 
 try:
     acc1 = Account(
@@ -278,5 +280,6 @@ try:
     for acc in added_batch:
         print(f"Added in batch: {acc}")
 except Exception as e:
-    print(f"Error: {e}")
-    sys.exit(1)
+        print(f"Error: {e}")
+        sys.exit(1)
+"""

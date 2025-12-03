@@ -5,10 +5,11 @@ from __future__ import annotations
 import argparse
 import sys
 
-from .runner import run_payment_terms
+from .runner import run_chart_of_accounts
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Entry point for the payment terms synchronisation CLI tool."""
     parser = argparse.ArgumentParser(
         description="Synchronise payment terms between Excel and QuickBooks"
     )
@@ -21,7 +22,7 @@ def main(argv: list[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
 
-    path = run_payment_terms("", args.workbook, output_path=args.output)
+    path = run_chart_of_accounts("", args.workbook, output_path=args.output)
     print(f"Report written to {path}")
     return 0
 
