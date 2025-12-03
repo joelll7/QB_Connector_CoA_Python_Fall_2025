@@ -9,7 +9,7 @@ report summarising the outcome.
 from __future__ import annotations
 
 from pathlib import Path  # Filesystem path handling
-from typing import Dict, List, Iterable  # Type annotations for clarity
+from typing import Dict, List  # Type annotations for clarity
 
 from . import compare, excel_reader, qb_gateway  # Local modules used in orchestration
 from .models import Conflict, Account  # Domain types
@@ -23,7 +23,13 @@ def _account_to_dict(account: Account) -> Dict[str, str]:
 
     This shape is used in the JSON report's "added_accounts" collection.
     """
-    return {"id": account.id, "name": account.name, "number": account.number, "type": account.AccountType, "source": account.source}
+    return {
+        "id": account.id,
+        "name": account.name,
+        "number": account.number,
+        "type": account.AccountType,
+        "source": account.source,
+    }
 
 
 def _conflict_to_dict(conflict: Conflict) -> Dict[str, object]:
@@ -36,7 +42,7 @@ def _conflict_to_dict(conflict: Conflict) -> Dict[str, object]:
         "qb_number": conflict.qb_number,
         "excel_type": conflict.excel_AccountType,
         "qb_type": conflict.qb_AccountType,
-        "reason": conflict.reason
+        "reason": conflict.reason,
     }
 
 
@@ -57,9 +63,8 @@ def _missing_in_excel_conflict(term: Account) -> Dict[str, object]:
         "reason": "missing_in_excel",
     }
 
-def _count_matching_terms(
-    excel_terms: List[Account], qb_terms: List[Account]
-) -> int:
+
+def _count_matching_terms(excel_terms: List[Account], qb_terms: List[Account]) -> int:
     """Return the number of terms that exist in both sources with identical data."""
 
     excel_by_id = {term.id: term for term in excel_terms}
@@ -69,7 +74,11 @@ def _count_matching_terms(
     for record_id in excel_by_id.keys() & qb_by_id.keys():
         excel_term = excel_by_id[record_id]
         qb_term = qb_by_id[record_id]
-        if excel_term.name == qb_term.name and excel_term.number == qb_term.number and excel_term.AccountType == qb_term.AccountType:
+        if (
+            excel_term.name == qb_term.name
+            and excel_term.number == qb_term.number
+            and excel_term.AccountType == qb_term.AccountType
+        ):
             matches += 1
     return matches
 
@@ -128,7 +137,9 @@ def run_chart_of_accounts(
         )
 
         # Populate the report payload with results
-        report_payload["added_chart_of_accounts"] = [_account_to_dict(term) for term in added_terms]
+        report_payload["added_chart_of_accounts"] = [
+            _account_to_dict(term) for term in added_terms
+        ]
         report_payload["conflicts"] = conflicts
         report_payload["same_accounts"] = _count_matching_terms(excel_terms, qb_terms)
 
@@ -142,4 +153,4 @@ def run_chart_of_accounts(
     return report_path
 
 
-__all__ = ["run_chart_of_accounts",  "DEFAULT_REPORT_NAME"]
+__all__ = ["run_chart_of_accounts", "DEFAULT_REPORT_NAME"]

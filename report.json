@@ -1,0 +1,151 @@
+{
+  "status": "success",
+  "generated_at": "2025-12-03T19:20:41.555572+00:00",
+  "added_chart_of_accounts": [
+    {
+      "id": "51",
+      "name": "Farmers",
+      "number": "66666",
+      "type": "Bank",
+      "source": "quickbooks"
+    },
+    {
+      "id": "52",
+      "name": "Ice Cream",
+      "number": "66667",
+      "type": "OtherExpense",
+      "source": "quickbooks"
+    },
+    {
+      "id": "54",
+      "name": "Discover",
+      "number": "66669",
+      "type": "Bank",
+      "source": "quickbooks"
+    }
+  ],
+  "conflicts": [
+    {
+      "record_id": "1",
+      "excel_name": "Materials",
+      "qb_name": "Accounts Receivable",
+      "excel_number": "50101",
+      "qb_number": "11000",
+      "excel_type": "Bank",
+      "qb_type": "AccountsReceivable",
+      "reason": "data_mismatch"
+    },
+    {
+      "record_id": "2",
+      "excel_name": "jokes",
+      "qb_name": "Inventory Asset",
+      "excel_number": "50200",
+      "qb_number": "12100",
+      "excel_type": "OtherExpense",
+      "qb_type": "OtherCurrentAsset",
+      "reason": "data_mismatch"
+    },
+    {
+      "record_id": "3",
+      "excel_name": "Donations",
+      "qb_name": "Undeposited Funds",
+      "excel_number": "50111",
+      "qb_number": "12000",
+      "excel_type": "OtherIncome",
+      "qb_type": "OtherCurrentAsset",
+      "reason": "data_mismatch"
+    },
+    {
+      "record_id": "7",
+      "excel_name": "Building",
+      "qb_name": "Sales",
+      "excel_number": "50114",
+      "qb_number": "47900",
+      "excel_type": "OtherCurrentAsset",
+      "qb_type": "Income",
+      "reason": "data_mismatch"
+    },
+    {
+      "record_id": "0",
+      "excel_name": null,
+      "qb_name": "bank",
+      "excel_number": null,
+      "qb_number": "",
+      "excel_type": null,
+      "qb_type": "Bank",
+      "reason": "missing_in_excel"
+    },
+    {
+      "record_id": "4",
+      "excel_name": null,
+      "qb_name": "Accounts Payable",
+      "excel_number": null,
+      "qb_number": "20000",
+      "excel_type": null,
+      "qb_type": "AccountsPayable",
+      "reason": "missing_in_excel"
+    },
+    {
+      "record_id": "5",
+      "excel_name": null,
+      "qb_name": "Payroll Liabilities",
+      "excel_number": null,
+      "qb_number": "24000",
+      "excel_type": null,
+      "qb_type": "OtherCurrentLiability",
+      "reason": "missing_in_excel"
+    },
+    {
+      "record_id": "6",
+      "excel_name": null,
+      "qb_name": "Opening Balance Equity",
+      "excel_number": null,
+      "qb_number": "30000",
+      "excel_type": null,
+      "qb_type": "Equity",
+      "reason": "missing_in_excel"
+    },
+    {
+      "record_id": "20",
+      "excel_name": null,
+      "qb_name": "Members Equity",
+      "excel_number": null,
+      "qb_number": "32000",
+      "excel_type": null,
+      "qb_type": "Equity",
+      "reason": "missing_in_excel"
+    },
+    {
+      "record_id": "8",
+      "excel_name": null,
+      "qb_name": "Cost of Goods Sold",
+      "excel_number": null,
+      "qb_number": "50000",
+      "excel_type": null,
+      "qb_type": "CostOfGoodsSold",
+      "reason": "missing_in_excel"
+    },
+    {
+      "record_id": "9",
+      "excel_name": null,
+      "qb_name": "Payroll Expenses",
+      "excel_number": null,
+      "qb_number": "66000",
+      "excel_type": null,
+      "qb_type": "Expense",
+      "reason": "missing_in_excel"
+    },
+    {
+      "record_id": "123",
+      "excel_name": null,
+      "qb_name": "new purchase",
+      "excel_number": null,
+      "qb_number": "11111",
+      "excel_type": null,
+      "qb_type": "NonPosting",
+      "reason": "missing_in_excel"
+    }
+  ],
+  "same_accounts": 3,
+  "error": null
+}

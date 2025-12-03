@@ -227,7 +227,7 @@ def add_account(company_file: str | None, term: Account) -> Account:
     acc_type = (account_ret.findtext("AccountType") or term.AccountType).strip()
 
     return Account(
-        id=id, name=name, acc_type=acc_type, acc_number=acc_number, source="quickbooks"
+        id=id, name=name, AccountType=acc_type, number=acc_number, source="quickbooks"
     )
 
 
